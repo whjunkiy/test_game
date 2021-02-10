@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head style="width: 100%; height: 100%; padding: 0; margin: 0;">
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        .fr {
+            background-image: url('pics/fr.png');
+            width: 50px;
+            height: 52px;
+            margin-top: 5px;
+            margin-left: 10px;
+            display: inline-block;
+            vertical-align:top;
+            white-space: normal
+        }
+        .pl {
+            background-image: url('pics/pl2.png'); width: 403px; height: 29px; margin-bottom: 10px; color: white; font-weight: bold;
+        }
+        .idspan {
+            position: relative; top: 5px; left: 25px;
+        }
+        .namespan {
+            position: relative; top: 5px; left: 85px;
+        }
+        .scorespan {
+            position: relative; top: 5px; left: 275px;
+        }
+    </style>
+</head>
+<body style="width: 100%; height: 100%;padding: 0; margin: 0;">
+    <div id="rating" style="transition: all 0.5s ease-in-out; background-image: url('pics/rate.png'); margin: 0 auto; left: 25%; right: 25%; position: absolute; width: 524px; height: 468px; top: -500px; z-index: 99;">
+        <div style="width: 25px; height: 25px; left: 480px; top: 26px; position: relative; cursor: pointer" onclick="closeRate();"></div>
+        <div style="width: 423px; height: 240px; position: relative; left: 60px; top: 150px; overflow-y: auto;" id="rscope">
+            <div class="pl">
+                <span class="idspan">id</span>
+                <span class="namespan">name</span>
+                <span class="scorespan">score</span>
+            </div>
+        </div>
+    </div>
+    <div style="margin: 0 auto; width: 980px; height: 630px; background-image: url('pics/bg.png')">
+        <div onmouseover="tinckle();" onmouseout="stoptinckle();" style="transition: all 0.5s linear; background-image: url('pics/girl.png'); width: 24px; height: 70px; position: relative; left: 433px; top: 437px;" id="girl"></div>
+        <div id="friends" style="background-image: url('pics/pl.png'); width: 536px; height: 63px; position: relative; left: 10px; top: 480px; white-space: nowrap;">
+            <div style="float: left; height: 100%; width: 30px; cursor: pointer;" onclick="roll(-1);"></div>
+            <div style="float: left; height: 100%; width: 472px; white-space: nowrap; overflow: hidden;">
+                <div style="transition: all 0.3s ease-out; position: relative; left: 0px;" id="frnds">
+                    <div class="fr"></div>
+                    <div class="fr"></div>
+                    <div class="fr"></div>
+                    <div class="fr"></div>
+                    <div class="fr"></div>
+                    <div class="fr"></div>
+                    <div class="fr"></div>
+                    <div class="fr"></div>
+                    <div class="fr"></div>
+                    <div class="fr"></div>
+                    <div class="fr"></div>
+                </div>
+            </div>
+            <div style="float: left; height: 100%; width: 30px; cursor: pointer;" onclick="roll(1);"></div>
+        </div>
+        <div id="go" onclick="goNext();" style="background-image: url('pics/button.png'); width: 202px; height: 64px; position: relative; left: 580px; top: 416px; cursor: pointer;"></div>
+        <div onclick="showRate();" style="background-image: url('pics/rating.png'); width: 66px; height: 60px; position: relative; left: 900px; top: 354px; cursor: pointer;"></div>
+    </div>
+    <script>
+        function closeRate(){
+            document.getElementById("rating").style.top = '-500px';
+        }
+        function showRate(){
+            var html = '';
+            document.getElementById("rating").style.top = '100px';
+            for (let i in data['rating']) {
+                let chk = chek(data['rating'][i]['id']);
+                html += '<div class="pl">\n' +
+                    '                <table border="0" cellspacing="0" cellpadding="0" style="width:100%; height: 100%;"><tr>' +
+                    '<td align="center" valign="middle" width="65px">'+data['rating'][i]['id']+'</td>' +
+                    '<td align="center" valign="middle" width="32px"></td>' +
+                    '<td align="left" valign="middle" width="200px" style="'+chk+'">' +data['rating'][i]['lastName']+ ' ' +data['rating'][i]['name']+'</td>' +
+                    '<td align="center" valign="middle">'+data['rating'][i]['points']+'</td>' +
+                    '</tr></table>\n' +
+                    '            </div>';
+            }
+            document.getElementById('rscope').innerHTML=html;
+        }
+        function chek(id) {
+            for (let i in data['friends']) {
+                if (data['friends'][i]['id'] === id) {
+                    return 'color: red;';
+                }
+            }
+            return '';
+        }
+        let curpos = 0;
+        let togo = 0;
+        let ontheway = 0;
+        let curXY = [433, 437];
+        let nIntId = null;
+        counter = 0;
+        const waypoints = [
+            [ [406,422] , [375, 394], [338, 408] ],
+            [ [264, 447] ],
+            [ [220, 466], [178, 467] ],
+            [ [144, 461], [99, 438] ],
+            [ [72, 419], [72, 403], [112, 375] ],
+            [ [100, 353], [105, 337], [130, 319] ],
+            [ [202, 280] ],
+            [ [223, 266], [226, 251], [165, 210] ],
+            [ [109, 171], [126, 158] ],
+            [ [150, 142], [141, 127], [145, 112], [163, 106], [189, 127] ],
+            [ [221, 166], [241, 173] ],
+            [ [276, 164], [284, 136] ],
+            [ [268, 92], [279, 86], [319, 87] ],
+            [ [329, 67], [361, 41] ],
+            [ [360, -8], [380, -36], [409, -30] ],
+            [ [443, -2], [486, -4], [491, 7] ],
+            [ [464, 23], [463, 54], [449, 81] ],
+            [ [451, 100], [476, 114], [482, 143], [473, 154] ],
+            [ [461, 171], [457, 210], [446, 232] ],
+            [ [375, 278] ],
+            [ [331, 309], [364, 340] ],
+            [ [409, 360], [443, 360] ],
+            [ [514, 398] ],
+            [ [611, 428] ],
+            [ [632, 407], [706, 453] ],
+            [ [798, 400] ],
+            [ [873, 352] ],
+            [ [936, 313] ],
+            [ [953, 292], [949, 245] ],
+            [ [873, 101] ]
+        ];
+
+        function goNext() {
+            if (ontheway) return;
+            if (curpos === waypoints.length - 1) {
+                alert("Шорткат! Раз-два и в дамках! Game over.");
+            }
+            if (curpos > waypoints.length - 1) {
+                alert("Game over.");
+                return;
+            }
+            ontheway = 1;
+            togo = 0;
+            console.log("im in x = " + curXY[0] + " y = " + curXY[1]);
+            console.log("wanna be in x = " + waypoints[curpos][togo][0] + " y = " + waypoints[curpos][togo][1]);
+            move();
+        }
+
+        function move() {
+            if (togo >= waypoints[curpos].length ) {
+                stopMoving();
+                return;
+            }
+            let nx = waypoints[curpos][togo][0];
+            let ny = waypoints[curpos][togo][1];
+            document.getElementById('girl').style.left = nx + 'px';
+            document.getElementById('girl').style.top = ny + 'px';
+            curXY[0] = nx; curXY[1] = ny;
+            togo++;
+            setTimeout(move, 500);
+        }
+
+        function stopMoving(){
+            ontheway = 0;
+            togo = 0;
+            curpos++;
+            return;
+        }
+
+        function tinckle() {
+            if (!nIntId) {
+                nIntId = setInterval(jumping, 500);
+            }
+        }
+
+        function jumping() {
+            let ny = curXY[1];
+            let t = document.getElementById('girl').style.top;
+            t = parseInt(t.replace( /px/, ''));
+            if (ny === t) {
+                ny -= 5;
+            } else {
+                ny = curXY[1];
+            }
+            document.getElementById('girl').style.top = ny + 'px';
+        }
+
+        function stoptinckle() {
+            clearInterval(nIntId);
+            nIntId = null;
+            document.getElementById('girl').style.top = curXY[1] + 'px';
+        }
+
+        function giveMeXY(e) {
+            let x = e.offsetX - 12;
+            let y = e.offsetY - 70;
+            console.log("      [" + x + ", " + y + "]         ");
+        }
+
+        function roll(id) {
+            let elems = document.querySelectorAll('.fr').length +1;
+            let f = -1 * (elems*64 - 470);
+            let t = document.getElementById('frnds').style.left;
+            t = parseInt(t.replace( /px/, ''));
+            if (id > 0) {
+                t -= 64;
+            } else {
+                t += 64;
+            }
+            if (t > 0 || t < f) return;
+            document.getElementById('frnds').style.left = t + 'px';
+        }
+    </script>
+    <script src="data.js"></script>
+</body>
+</html>
